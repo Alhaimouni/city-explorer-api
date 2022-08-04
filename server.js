@@ -17,8 +17,14 @@ server.get('/weather',(req,res)=> {
     let inputLat = req.query.lat;
     let inputLon = req.query.lon;
 
-    let result = weatherData.find(item=>inputCityName.toLocaleLowerCase() === item.city_name.toLocaleLowerCase());
+        
+    if(!inputCityName) {
+        res.status(400).send('Please follow the documentation and fill the requierd feild as the following ?searchQuery=city name');
+    }
 
+    let result = weatherData.find(item=>inputCityName.toLowerCase() === item.city_name.toLowerCase());
+   
+    
     try {
         let filteredData = result.data.map(item=> new ForCast(item));
         res.status(200).send(filteredData);
