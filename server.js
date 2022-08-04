@@ -8,7 +8,10 @@ const PORT = process.env.PORT;
 const weatherData = require('./data/weather.json');
 
 
+
 server.listen(PORT,()=>console.log("Server is ready!"));
+
+server.use(cors());
 
 
 server.get('/weather',(req,res)=> {
@@ -33,6 +36,10 @@ server.get('/weather',(req,res)=> {
     }
 
 });
+
+server.get('*',(req,res)=> {
+    res.status(500).send("Not found")
+})
 
 
 class ForCast {
