@@ -6,7 +6,7 @@ require('dotenv').config();
 const axios = require('axios')
 const server = express();
 const PORT = process.env.PORT;
-const weatherData = require('./data/weather.json');
+// const weatherData = require('./data/weather.json');
 
 
 
@@ -15,24 +15,19 @@ server.listen(PORT, () => console.log("Server is ready!"));
 server.use(cors());
 
 
-server.get('/weather', (req, res) => {
+server.get('/weather', async (req, res) => {
 
     let inputCityName = req.query.searchQuery;
     let inputLat = req.query.lat;
     let inputLon = req.query.lon;
-
-
-    if (!inputCityName) {
-        res.status(400).send('Please follow the documentation and fill the requierd feild as the following ?searchQuery=city name');
-    }
-
-    let result = weatherData.find(item => inputCityName.toLowerCase() === item.city_name.toLowerCase());
-
+    const weatherUrl = `https://api.weatherbit.io/v2.0/current?lat=${inputLat}&lon=${inputLon}&key=${process.env.WEATHER_API_KEY}`;
 
     try {
-        let filteredData = result.data.map(item => new ForCast(item));
+        const axiosResult = await axios.get(weatherUrl);
+        const weatherData = axiosResult.data.data;
+        let filteredData = weatherData.map(item => new ForCast(item));
         res.status(200).send(filteredData);
-    } catch (error) {
+    }  catch (error) {
         res.status(400).send('Data not found');
     }
 
@@ -67,7 +62,7 @@ server.get('*', (req, res) => {
 class ForCast {
     constructor(day) {
 
-        this.date = day.valid_date;
+        this.date = day.datetime;
         this.description = day.weather.description;
     }
 }
